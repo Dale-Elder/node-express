@@ -1,10 +1,12 @@
-const express = require('express')
-const app = express()
-const { products } = require('./data')
-app.get('/', (req, res) => {
-  res.json(products)
-})
+const express = require("express");
+const app = express();
+const port = 5000 || process.env.PORT;
+const { products } = require("./data.js");
 
-app.listen(5000, () => {
-  console.log('Server is listening on port 5000....')
-})
+app.get("/", (req, res) => {
+  res.status(200).json(products);
+});
+
+app.listen(port, () => {
+  console.log(`Server is listening at http://localhost:${port}`);
+});

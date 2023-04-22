@@ -1,25 +1,40 @@
 const express = require("express");
-const path = require("path");
-// create express app
+const morgan = require("morgan");
+const logger = require("./logger");
+const authorize = require("./authorize");
 const app = express();
-// setting up the port if not set by the environment
-const port = 5000 || process.env.port;
-// setting up the static files and middleware
-app.use(express.static("./public"));
+const port = 5000 || process.env.PORT;
 
-// about page
-// app.get("/", (req, res) => {
-//   res.status(200).sendFile(path.resolve(__dirname, "./navbar-app/index.html"));
-// adding to static assets
-// SSR
-// });
+// req => middleware => res
 
-// 404 page
-app.all("*", (req, res) => {
-  res.status(404).send("<h1>Resource not found!</h1>");
+// 1. use vs route
+// 2. options - our own / express / third party
+
+// app.use([logger, authorize]);
+// app.use(express.static("./public"));
+app.use(morgan("tiny"));
+
+app.get("/", (req, res) => {
+  res.send("<h1>Home Page</h1>");
 });
 
-// app listening at localhost on port 5000 or the environment port
+app.get("/about", (req, res) => {
+  res.send("<h1>About Page</h1>");
+});
+
+app.get("/api/products", (req, res) => {
+  res.send("<h1>Products Page</h1>");
+});
+
+app.get("/api/items", (req, res) => {
+  console.log(req.user);
+  res.send("<h1>Items Page</h1>");
+});
+
+app.all("*", (req, res) => {
+  res.status(404).send("<h1>Resource not found</h1>");
+});
+
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
+  console.log(`Server is running at http://localhost:${port}`);
 });
