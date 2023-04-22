@@ -1,38 +1,65 @@
 const express = require("express");
-const morgan = require("morgan");
-const logger = require("./logger");
-const authorize = require("./authorize");
 const app = express();
+let { people } = require("./data");
 const port = 5000 || process.env.PORT;
 
-// req => middleware => res
+// static assets
+app.use(express.static("./methods-public"));
+// parse form data
+app.use(express.urlencoded({ extended: false }));
+// parse json
+app.use(express.json());
 
-// 1. use vs route
-// 2. options - our own / express / third party
-
-// app.use([logger, authorize]);
-// app.use(express.static("./public"));
-app.use(morgan("tiny"));
-
-app.get("/", (req, res) => {
-  res.send("<h1>Home Page</h1>");
+app.get("/api/people", (req, res) => {
+  res.status(200).json({ success: true, data: people });
 });
 
-app.get("/about", (req, res) => {
-  res.send("<h1>About Page</h1>");
+app.post("/api/people", (req, res) => {
+  const { name } = req.body;
+  if (!name) {
+    return res
+      .status(400)
+      .json({ success: false, message: "please provide name value" });
+  }
+  res.status(201).json({ success: true, person: name });
 });
 
-app.get("/api/products", (req, res) => {
-  res.send("<h1>Products Page</h1>");
+app.post("/api/postman/people", (req, res) => {
+  const { name } = req.body;
+  if (!name) {
+    return res
+      .status(400)
+      .json({ success: false, message: "please provide name value" });
+  }
+  res.status(201).json({ success: true, data: [...people, name] });
 });
 
-app.get("/api/items", (req, res) => {
-  console.log(req.user);
-  res.send("<h1>Items Page</h1>");
+app.post("/login", (req, res) => {
+  const { name } = req.body;
+  if (name) {
+    return res.status(200).send(`Welcome ${name}`);
+  }
+  res.status(401).send("Please provide credentials");
 });
 
-app.all("*", (req, res) => {
-  res.status(404).send("<h1>Resource not found</h1>");
+app.put("/api/people/:id", (req, res) => {
+  const { id } = req.params;
+  const { name } = req.body;
+
+  const person = people.find((person) => person.id === Number(id));
+
+  if (!person) {
+    return res
+      .status(404)
+      .json({ success: false, message: `No person with id ${id}` });
+  }
+  const newPeople = people.map((person) => {
+    if (person.id === Number(id)) {
+      person.name = name;
+    }
+    return person;
+  });
+  res.status(200).json({ success: true, data: newPeople });
 });
 
 app.listen(port, () => {
