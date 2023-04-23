@@ -2,6 +2,7 @@ const express = require("express");
 const tasks = require("./routes/tasks");
 const connectDB = require("./db/connect");
 const notFound = require("./middleware/not-found");
+const errorHandlerMiddleware = require("./middleware/error-handler");
 require("dotenv").config();
 const port = 3000 || process.env.PORT;
 const app = express();
@@ -12,10 +13,14 @@ app.use(express.static("./public"));
 app.use(express.json());
 
 /*-- routes --*/
-
+// tasks router
 app.use("/api/v1/tasks", tasks);
 
+// page not found middleware
 app.use(notFound);
+
+// error handler middleware
+app.use(errorHandlerMiddleware);
 
 // app.get('/api/v1/tasks')        -- get all the tasks
 // app.post('/api/v1/tasks')       -- create a new task
