@@ -1,21 +1,21 @@
 const express = require("express");
-const app = express();
 const tasks = require("./routes/tasks");
 const connectDB = require("./db/connect");
+const notFound = require("./middleware/not-found");
 require("dotenv").config();
 const port = 3000 || process.env.PORT;
+const app = express();
 
-// middleware
+/*-- middleware --*/
 
+app.use(express.static("./public"));
 app.use(express.json());
 
-// routes
-
-app.get("/hello", (req, res) => {
-  res.status(200).send("Task Manager App!");
-});
+/*-- routes --*/
 
 app.use("/api/v1/tasks", tasks);
+
+app.use(notFound);
 
 // app.get('/api/v1/tasks')        -- get all the tasks
 // app.post('/api/v1/tasks')       -- create a new task
